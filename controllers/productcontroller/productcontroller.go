@@ -66,9 +66,36 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ResponseJson(w, http.StatusCreated, product)
+
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var product models.Product
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&product); err != nil {
+		ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	if models.DB.Where("id = ?", id).Updates(&product).RowsAffected == 0 {
+		ResponseError(w, http.StatusBadRequest, "Tidak dapat mengupdate product")
+		return
+	}
+
+	product.Id = id
+
+	ResponseJson(w, http.StatusOK, product)
 
 }
 
