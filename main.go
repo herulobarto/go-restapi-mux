@@ -5,10 +5,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/herulobarto/go-restapi-mux/controllers/productcontroller"
+	"github.com/herulobarto/go-restapi-mux/models"
 )
 
 func main() {
-
+	models.ConnectDatabase()
 	r := mux.NewRouter()
 
 	r.HandleFunc("/products", productcontroller.Index).Methods("GET")
