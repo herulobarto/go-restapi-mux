@@ -1,6 +1,7 @@
 package productcontroller
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -49,6 +50,22 @@ func Show(w http.ResponseWriter, r *http.Request) {
 
 func Create(w http.ResponseWriter, r *http.Request) {
 
+	var product models.Product
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&product); err != nil {
+		ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	if err := models.DB.Create(&product).Error; err != nil {
+		ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ResponseJson(w, http.StatusCreated, product)
 }
 
 func Update(w http.ResponseWriter, r *http.Request) {
