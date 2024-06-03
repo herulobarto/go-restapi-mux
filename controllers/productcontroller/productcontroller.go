@@ -101,4 +101,22 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 
+	input := map[string]string{"id": ""}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&input); err != nil {
+		ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	defer r.Body.Close()
+
+	var product models.Product
+	if models.DB.Delete(&product, input["id"]).RowsAffected == 0 {
+		ResponseError(w, http.StatusBadRequest, "Tidak dapat menghapus product")
+		return
+	}
+
+	response := map[string]string{"message": "Product berhasil di hapus"}
+	ResponseJson(w, http.StatusOK, response)
 }
